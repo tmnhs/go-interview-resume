@@ -11,7 +11,7 @@ Redis是一个基于内存的高性能的非关系型的键值对数据库，使
   - **支持数据持久化**，有AOF和RDB（默认）两种持久化方式
     - Redis 默认开启RDB持久化方式，在指定的时间间隔内，执行指定次数的写操作，则将内存中的数据写入到磁盘中。
     - AOF ：Redis 默认不开启。它的出现是为了弥补RDB的不足（数据的不一致性），所以它采用日志的形式来记录每个**写操作**，并**追加**到文件中。Redis 重启的会根据日志文件的内容将写指令从前到后执行一次以完成数据的恢复工作。
-  - 数据结构丰富**，支持string、list、set、hash
+  - **数据结构丰富**，支持string、list、set、hash
   - **支持事务**，redis所有的操作都是原子性的，并且还支持几个操作合并后的原子性执行，原子性值操作要么成功执行，要么失败不执行，不会只执行一部分
   - **支持主从复制**，主机可以自动将数据同步到从机，进行读写分离
 
@@ -63,15 +63,17 @@ Redis6.0默认是否开启了多线程呢？
 
 ### 6.❤Redis的数据类型有哪些？
 
+> 需要牢记五大数据类型及其应用场景
+
 Redis的常见的数据类型String、Hash、Set、List、ZSet。还有三种不那么常见的数据类型：Bitmap、HyperLogLog、Geospatial
 
-| 数据类型   | 可以存储的只            | 可进行的操作                 | 应用场景         |
-| ------ | ----------------- | ---------------------- | ------------ |
-| string | 字符串、整数、浮点数        | 对整数或浮点数可以进行自增、自减       | 键值对缓存及常规技术   |
-| list   | 列表（内部使用双向列表实现）    | 向列表两端添加元素，或者获的列表的某一个片段 | 存储ID列表       |
-| set    | 无序集合（内部使用值为空的散列表） | 增加/删除/获取元素，去交集并集       | 共同好友，共同关注等   |
-| zset   | 有序集合（内部使用列表和跳表）   | 添加、获取、删除元素、排名无序        | 去重、后去排名前几的用户 |
-| hash   | 包含键值对的散列          | 添加、获取、移除单个键值对          | 常用于存储对象      |
+| 数据类型   | 可以存储的只            | 可进行的操作                 | 应用场景                   |
+| ------ | ----------------- | ---------------------- | ---------------------- |
+| string | 字符串、整数、浮点数        | 对整数或浮点数可以进行自增、自减       | 键值对缓存及常规技术             |
+| list   | 列表（内部使用双向列表实现）    | 向列表两端添加元素，或者获的列表的某一个片段 | 存储ID列表、消息队列            |
+| set    | 无序集合（内部使用值为空的散列表） | 增加/删除/获取元素，去交集并集       | 共同好友，共同关注（使用sinter命令）等 |
+| zset   | 有序集合（内部使用列表和跳表）   | 添加、获取、删除元素、排名无序        | 排行榜，延时队列               |
+| hash   | 包含键值对的散列          | 添加、获取、移除单个键值对          | 常用于存储对象，比如购物车          |
 
 **bitmap**:位图，是一个以位为单位的数组，数组中只能1或0，数组的下标叫偏移量。bitmap实现统计功能，更省空间。面试过程中常问的的布隆过滤器就用到这种数据结构，布隆过滤器可以判断出**哪些数据一定不在数据库中**，所以常用来解决Redis缓存穿透问题
 
@@ -985,3 +987,70 @@ Redis回收使用**LRU算法和引用计数法**
 **注意**: 生产环境使用 KEYS命令需要非常小心，在大的数据库上执行命令会影响性能，KEYS指令会导致线程阻塞一段时间，线上服务会停顿，直到指令执行完毕，服务才能恢复。这个命令适合用来调试和特殊操作，像改变键空间布局。 
 
 不要在你的代码中使用 KEYS 。如果你需要一个寻找键空间中的key子集，考虑使用 **SCAN** 或 sets。
+
+### 9.如何用Redis统计在线人数？
+
+**方案一：使用集合**
+
+每当一个用户上线时， 我们就执行以下 [SADD](http://redisdoc.com/set/sadd.html) 命令， 将它添加到在线用户名单当中：
+
+```shell
+SADD "online_users" <user_id>
+```
+
+通过使用 [SISMEMBER](http://redisdoc.com/set/sismember.html) 命令， 我们可以检查一个指定的用户当前是否在线：
+
+```shell
+SISMEMBER "online_users" <user_id>
+```
+
+而统计在线人数的工作则可以通过执行 [SCARD](http://redisdoc.com/set/scard.html) 命令来完成：
+
+```shell
+SCARD "online_users"
+```
+
+通过集合运算操作， 对不同时间段或者日期的在线用户名单进行聚合计算。 比如说， 通过 [SINTER](http://redisdoc.com/set/sinter.html) 或者 [SINTERSTORE](http://redisdoc.com/set/sinterstore.html) 命令， 我们可以计算出一周都有在线的用户：
+
+```shell
+SINTER "day_1_online_users" "day_2_online_users" ... "day_7_online_users"
+```
+
+**方案二：位图（常用方案）**
+
+使用有序集合或者集合能够储存具体的在线用户名单， 但是却需要消耗大量的内存；
+
+Redis 的位图就是一个由二进制位组成的数组， 通过将数组中的每个二进制位与用户 ID 进行一一对应， 我们可以使用位图去记录每个用户是否在线。
+
+当一个用户上线时， 我们就使用 [SETBIT](http://redisdoc.com/string/setbit.html) 命令， 将这个用户对应的二进制位设置为 1 ：
+
+```shell
+# 此处的 user_id 必须为数字，因为它会被用作索引
+SETBIT "online_users" <user_id> 1
+```
+
+通过使用 [GETBIT](http://redisdoc.com/string/getbit.html) 命令去检查一个二进制位的值是否为 1 ， 我们可以知道指定的用户是否在线：
+
+```shell
+GETBIT "online_users" <user_id>
+```
+
+而通过 [BITCOUNT](http://redisdoc.com/string/bitcount.html) 命令， 我们可以统计出位图中有多少个二进制位被设置成了 1 ， 也即是有多少个用户在线：
+
+```shell
+BITCOUNT "online_users"
+```
+
+跟集合一样， 用户也能够对多个位图进行聚合计算 —— 通过 [BITOP](http://redisdoc.com/string/bitop.html) 命令， 用户可以对一个或多个位图执行逻辑并、逻辑或、逻辑异或或者逻辑非操作：
+
+```shell
+# 计算出 7 天都在线的用户
+BITOP "AND" "7_days_both_online_users" "day_1_online_users" "day_2_online_users" ... "day_7_online_users"
+
+# 计算出 7 在的在线用户总人数
+BITOP "OR" "7_days_total_online_users" "day_1_online_users" "day_2_online_users" ... "day_7_online_users"
+
+# 计算出两天当中只有其中一天在线的用户
+BITOP "XOR" "only_one_day_online" "day_1_online_users" "day_2_online_users"
+```
+
