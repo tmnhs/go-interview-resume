@@ -8,43 +8,91 @@
 > 其中❤表示重点
 - [Go语言](https://github.com/tmnhs/go-interview-resume/blob/main/interview/go%E8%AF%AD%E8%A8%80.md)
 
-  与golang相关的面试题，包括Go语言的基础语法、垃圾回收、内存管理、GMP模型以及常见数据结构(channel、map、select...)的底层原理等
-  
+  与golang相关的面试题，包括Go语言的**基础语法**、**垃圾回收**、**内存管理**、**GMP模型**以及**常见数据结构**(channel、map、select...)的底层原理等
+
   推荐阅读[地鼠文档](https://www.topgoer.cn/), 可以在里面找到许多与go语言相关的文档，比如[Go专家编程](https://www.topgoer.cn/docs/gozhuanjia/gogfjhk) 、 [Go语言标准库](https://www.topgoer.cn/docs/golangstandard/golangstandard-1cmks9a4kaj3c) 等都值得阅读
 
-- [代码编程]()
+- [代码编程](https://github.com/tmnhs/go-interview-resume/blob/main/interview/%E4%BB%A3%E7%A0%81%E7%BC%96%E7%A8%8B(go%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0).md)
 
   面试过程中面试官可能要求实现的一些代码编程
-  
+
   比如：
-  
+
   - 两个协程交替打印10个字母和数字
-  
+
   - 启动 2个groutine 2秒后取消， 第一个协程1秒执行完，第二个协程3秒执行完
-    
+
     ...
-    
+
 - [常见算法和模板](https://github.com/tmnhs/go-interview-resume/blob/main/interview/%E5%B8%B8%E8%A7%81%E7%AE%97%E6%B3%95%E5%92%8C%E6%A8%A1%E6%9D%BF.md)
-  
-  一些常见算法的模板，比如KMP、LRU算法、二分法、回溯法、分治法、滑动窗口等
-  
+
+  一些常见算法的模板，比如**KMP、LRU算法、二分法、回溯法、分治法、滑动窗口**等
+
   推荐阅读[algorithm-pattern](https://greyireland.gitbook.io/algorithm-pattern/) ,是基于Go语言的，阅读此文档可以解决面试中绝大部分算法题
-  
+
 - [MySQL](https://github.com/tmnhs/go-interview-resume/blob/main/interview/MySQL.md)
 
-- [Redis](https://github.com/tmnhs/go-interview-resume/blob/main/interview/redis.md)
+  MySQL的一些面试题，包括:
+  
+  - 存储引擎
+  
+  - 索引及其优化
+  
+  - 事务(MVCC)和锁
+  
+  - 分库分表和主从复制
+  
+    ...
 
+- [Redis](https://github.com/tmnhs/go-interview-resume/blob/main/interview/redis.md)
+  
+  Redis面试题，包括**基本的数据类型、过期键的处理策略、持久化、集群、主从和哨兵**等
+  
+  
 - [计算机网络](https://github.com/tmnhs/go-interview-resume/blob/main/interview/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C.md)
+
+  计算机网络相关面试题，比如**网络协议、Tcp三次握手、四次挥手、http和https**等
 
 - [操作系统](https://github.com/tmnhs/go-interview-resume/blob/main/interview/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.md)
 
+  操作系统面试题，比如**线程、进程以及它们之间如何通信的、多路IO复用、内存**等
+
 - [海量数据高频面试题](https://github.com/tmnhs/go-interview-resume/blob/main/interview/%E6%B5%B7%E9%87%8F%E6%95%B0%E6%8D%AE%E9%AB%98%E9%A2%91%E9%9D%A2%E8%AF%95%E9%A2%98.md)
 
-- [微服务]()
+  在海量数据场景下的一些面试题，比如：
+  
+  - 寻找热门查询，300万个查询字符串中统计最热门的10个
+  
+  - 在2.5亿个整数中找出不重复的整数，内存空间不足以容纳这2.5亿个整数
+  
+  - 在5亿个int找它们的中位数
+  
+    ...
 
-- [系统设计]()
+- [微服务](https://github.com/tmnhs/go-interview-resume/blob/main/interview/%E5%BE%AE%E6%9C%8D%E5%8A%A1.md)
+  
+  微服务场景下的面试题，比如服务治理、熔断和降级等
+  
+- [系统设计](https://github.com/tmnhs/go-interview-resume/blob/main/interview/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF.md)
 
-- [架构设计]()
-
+  在某些特定场景下的一些系统设计的面试题，比如：
+  
+  - 分布式ID生成器
+  
+  - 短网址系统
+  
+  - 定时任务调度器
+   
+    ...
+  
+- [架构设计](https://github.com/tmnhs/go-interview-resume/blob/main/interview/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1.md)
+  与架构设计相关的面试题，比如：
+  
+  - 为什么要做多级缓存
+  
+  - MQ中间件是如何实现消息可靠性投递的
+  
+    ...
+  
 
 
