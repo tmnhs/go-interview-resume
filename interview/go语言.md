@@ -325,7 +325,7 @@ func main() {
 }
 ```
 
-- 有时候给通道发送一个空结构体,channel<-struct{}{}，也是节省了空间。
+- 有时候给通道发送一个空结构体实现并发控制,channel<-struct{}{}，也是节省了空间。
 
 ```go
 func main() {
@@ -537,9 +537,7 @@ func main() {
 ### 28对已经关闭的chan进行读写会怎么样？
 
 - 读已经关闭的chan能一直读到东西，但是读到的内容根据通道内关闭前是否有元素而不同。
-
   - 如果chan关闭前，buffer内有元素还未读,会正确读到chan内的值，且返回的第二个bool值（是否读成功）为true。
-
     - 如果chan关闭前，buffer内有元素已经被读完，chan内无值，接下来所有接收的值都会非阻塞直接成功，返回 channel 元素的零值，但是第二个bool值一直为false。
 
 
@@ -707,7 +705,7 @@ slice 的主要实现是**扩容**。对于 append 向 slice 添加元素时，�
 
 ### 42map 使用注意的点，是否并发安全？
 
-map的类型是map[key]，key类型的ke必须是可比较的，通常情况，会选择内建的基本类型，比如整数、字符串做key的类型。如果要使用struct作为key，要保证struct对象在逻辑上是不可变的。在Go语言中，map[key]函数返回结果可以是一个值，也可以是两个值。map是无序的，如果我们想要保证遍历map时元素有序，可以使用辅助的数据结构，例如orderedmap。
+map的类型是map[key]，key类型的key必须是可比较的，通常情况，会选择内建的基本类型，比如整数、字符串做key的类型。如果要使用struct作为key，要保证struct对象在逻辑上是不可变的。在Go语言中，map[key]函数返回结果可以是一个值，也可以是两个值。map是无序的，如果我们想要保证遍历map时元素有序，可以使用辅助的数据结构，例如orderedmap。
 
 **第一，**一定要先**初始化**，否则panic
 
@@ -729,9 +727,9 @@ map的类型是map[key]，key类型的ke必须是可比较的，通常情况，�
 
 以下是本人参考官方**https://github.com/golang/go/issues/20135**总结出来的，和上面的差不多，建议使用下面的说法
 
-这个问题是关于哈希桶bucket的，包括标准桶和溢出桶。当从map中删除元素时，map不会缩小哈希桶数或释放溢出桶。当元素被删除时，map将桶中的槽*清零* ，不会释放内存。
+这个问题是关于哈希桶bucket的，包括标准桶和溢出桶。当从map中删除元素时，**map不会缩小哈希桶数或释放溢出桶**。**当元素被删除时，map将桶中的槽*清零* ，不会释放内存**。
 
-键和值本身的空间不会被回收，因为该空间是存储桶的一部分。只有键和值*引用*的东西才会被收集。
+键和值本身的空间不会被回收，因为该空间是哈希桶的一部分。只有键和值*引用*的东西才会被收集。
 
 从理论上讲，map总是在增长。使用指针，我们能够收集指向的空间，但桶的大小永远不会。
 
@@ -802,8 +800,6 @@ type Map struct {
 - slices
 - maps
 - functions
-
-
 
 ### 48讲讲 Go 中主协程如何等待其余协程退出?
 
@@ -903,7 +899,7 @@ Go和C++不同，Go局部变量会进行**逃逸分析**。如果**变量离开�
 
 `go build -gcflags '-m -m -l' xxx.go`.
 
-### 03❤golang的内存管理的原理清楚吗？简述go内存管理机制 
+### 03❤golang的内存管理的原理清楚吗？简述go内存管理机制
 
 golang内存管理基本是参考tcmalloc来进行的。go内存管理本质上是一个内存池，只不过内部做了很多优化：**自动伸缩内存池大小，合理的切割内存块**。
 
@@ -990,7 +986,7 @@ string相比切片少了一个容量的cap字段，可以把string当成一个�
 - GC开始时进行STW，做一些准备工作，比如开启写屏障，扫描栈等
 - 二次扫描：GC 迭代结束时（没有灰色节点），会对栈执行 STW，重新进行扫描清除白色节点。（STW 时间为 10-100ms）。如果开启混合写屏障，无需进行二次扫描
 
-### 06GC 的触发时机？（初级必问）
+### 06❤GC 的触发时机？（初级必问）
 
 初级必问，分为系统触发和手动触发。
 
@@ -1093,7 +1089,7 @@ M必须拥有P才可以执行G中的代码，P含有一个包含多个G的队列
 
 
 
-### 03❤Go中GMP有哪些状态？
+### 03Go中GMP有哪些状态？
 
 ![img](https://pic4.zhimg.com/80/v2-87beb4a53dd92ddccef4ecb486dfa213_1440w.webp)
 
@@ -1172,25 +1168,19 @@ work stealing算法指，如果一个调度器P处于空闲状态，则会尝试
 - M 注册一个 **SIGURG** 信号的处理函数：sighandler。
 
 
-
 - sysmon 线程检测到执行时间过长的 goroutine 或者GC stw 时，会向相应的 M（或者说线程，每个线程对应一个 M）发送 SIGURG 信号。
-
 
 
 - 收到信号后，内核执行 sighandler 函数，通过 **pushCall** 插入 asyncPreempt 函数调用。
 
 
-
 - 回到当前 goroutine 执行 asyncPreempt 函数，通过 mcall 切到 g0 栈执行 gopreempt_m。
-
 
 
 - 将当前 goroutine 插入到全局可运行队列，M 则继续寻找其他 goroutine 来运行。
 
 
-
 - 被抢占的 goroutine 再次调度过来执行时，会继续原来的执行流。
-
 
 
 
@@ -1283,7 +1273,7 @@ channel是**线程安全**的。
 
 源码位于`src\runtime\map.go` 中。
 
-go的map和C++map不一样，底层实现是哈希表，包括两个部分：**hmap**和**bucket哈系桶**。
+go的map和C++map不一样，底层实现是哈希表，包括两个部分：**hmap**和**bucket哈希桶**。
 
 ```go
 type hmap struct {
@@ -1339,6 +1329,7 @@ type bmap struct {
 >
 > ```
 > 负载因子 = 键数量/bucket数量
+>
 > ```
 >
 > 2）overflow数量 > 2^15时，也即overflow数量超过32768时。
@@ -1365,7 +1356,7 @@ hmap数据结构中oldbuckets成员指身原bucket，而buckets指向了新申�
 
 select源码位于`src\runtime\select.go`，最重要的`scase` 数据结构为：
 
-```
+```go
 type scase struct {
 	c    *hchan         // chan
 	elem unsafe.Pointer // data element
@@ -1444,6 +1435,7 @@ type iface struct {
 	tab  *itab
 	data unsafe.Pointer
 }
+
 ```
 
 可以简单理解为，tab表示接口的具体结构类型，而data是接口的值。
@@ -1458,6 +1450,7 @@ type itab struct {
 	_     [4]byte
 	fun   [1]uintptr // variable sized. fun[0]==0 means _type does not implement inter.
 }
+
 ```
 
 属性`interfacetype`类似于`_type`，其作用就是interface的公共描述，类似的还有`maptype`、`arraytype`、`chantype`…其都是各个结构的公共描述，可以理解为一种外在的表现信息。interfaetype和type唯一确定了接口类型，而hash用于查询和类型判断。fun表示方法集。
@@ -1471,6 +1464,7 @@ type eface struct {
 	_type *_type
 	data  unsafe.Pointer
 }
+
 ```
 
 这里篇幅有限，深入讨论可以看：[深入研究 Go interface 底层实现](https://link.zhihu.com/?target=https%3A//halfrost.com/go_interface/%23toc-1)
@@ -1552,17 +1546,13 @@ type Context interface {
 - 延迟函数的参数是 defer 语句出现的时候就已经确定了的。
 
 
-
 - 延迟函数执行按照**后进先出**的顺序执行，即先出现的 defer 最后执行。
-
 
 
 - 延迟函数可能操作**主函数的返回值**。
 
 
-
 - 申请资源后立即使用 defer 关闭资源是个好习惯。
-
 
 # 并发编程
 
@@ -1602,7 +1592,7 @@ runtime.Goexit()，调用此函数会立即使当前的goroutine的运行终止�
 
 另外对于协程，可以用带缓冲区的channel来控制，下面的例子是协程数为1024的例子
 
-```
+```go
 var wg sync.WaitGroup
 ch := make(chan struct{}, 1024)
 for i:=0; i<20000; i++{
@@ -1663,9 +1653,9 @@ mutex有两种模式：**normal** 和 **starvation**
 
 ### 07除了 mutex 以外还有那些方式安全读写共享变量？
 
-* Golang中Goroutine 可以通过 Channel 进行安全读写共享变量。
-* 可以用个数为 1 的信号量（semaphore）实现互斥
-* 使用sync包，比如sync.Map
+- Golang中Goroutine 可以通过 Channel 进行安全读写共享变量。
+- 可以用个数为 1 的信号量（semaphore）实现互斥
+- 使用sync包，比如sync.Map
 
 ### 08悲观锁、乐观锁是什么？
 
@@ -2166,7 +2156,19 @@ server {
 
 > 参考[senghoo/golang-design-pattern: 设计模式 Golang实现－《研磨设计模式》读书笔记 (github.com)](https://github.com/senghoo/golang-design-pattern)
 >
-> 随便挑几个模式说即可
+> 设计模式的六大原则
+>
+> 一、单一职责原则（Single Responsibility Principle）
+>
+> 二、开闭原则(Open-Closed Principle, OCP)
+>
+> 三、里氏代换原则(Liskov Substitution Principle, LSP)
+>
+> 四、依赖倒置原则（Dependence Inversion Principle，DIP）
+>
+> 五、接口隔离原则(Interface  Segregation Principle, ISP)
+>
+> 六、迪米特法则(Law of  Demeter, LoD)
 
 - 简单工厂模式：`go` 语言没有构造函数一说，所以一般会定义 `NewXXX` 函数来初始化相关类。`NewXXX` 函数返回接口时就是简单工厂模式，也就是说 `Golang` 的一般推荐做法就是简单工厂。
 
@@ -2398,6 +2400,25 @@ go的自带工具链相当丰富，
 **相似点**：
 都有类似的机制，例如grpc的metadata机制和http的头机制作用相似，而且web框架，和rpc框架中都有拦截器的概念。grpc使用的是http2.0协议。
 官网：[gRPC](https://link.zhihu.com/?target=https%3A//grpc.io/)
+
+### 13.什么是死锁？如何避免？
+
+死锁是**指两个或者两个以上进程在执行过程中，由于竞争资源或者由于彼此通信而造成的一种阻塞的现象**。
+
+> 产生死锁的四个必要条件
+>
+> - 互斥条件：该资源任意一个时刻只由一个线程占用。
+> - 请求与保持条件：一个进程因请求资源而阻塞时，对已获得的资源保持不放。
+> - 不剥夺条件:线程已获得的资源在未使用完之前不能被其他线程强行剥夺，只有自己使用完毕后才释放资源。
+> - 循环等待条件:若干进程之间形成一种头尾相接的循环等待资源关系。
+
+如何避免死锁
+
+针对四个必要条件，只要破坏其中一条，即可破坏死锁的产生。最常见的并且可行的就是**使用资源有序分配法，来破环循环等待条件**
+
+- 破坏请求与保持条件 ：**一次性申请所有的资源**。
+- 破坏不剥夺条件 ：占用部分资源的线程进一步申请其他资源时，如果申请不到，**可以主动释放它占有的资源。**
+- 破坏循环等待条件 ：**靠按序申请资源来预防**。按某一顺序申请资源，释放资源则反序释放。破坏循环等待条件。
 
 # 总结
 

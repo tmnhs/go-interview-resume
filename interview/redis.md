@@ -108,7 +108,7 @@ Redis的常见的数据类型String、Hash、Set、List、ZSet。还有三种不
     ![img](https://image.mianshi.online/img202205212044115.png)
 
 
-- **跳跃表**（**面试**常问）：跳跃表是一种有序数据结构，它通过在每个节点维持多个指向其他结点的指针，从而达到快速访问节点的目的。平均O(logN)、最坏O(N)复杂度的结点查找，还可以通过顺序性操作来批量处理节点。**跳跃表是有序集合键的底层实现之一** ，跳跃表还在集群节点中用作内部数据结构。跳跃表本质是一种空间换时间的策略，是一种可以进行二分查找的有序链表，跳跃表在原有的有序链表上增加了多级索引，通过索引来实现快速查询。跳表不仅能提高搜索性能，同时可以提高插入和删除操作的性能
+- **跳跃表**（**面试**常问）：跳跃表是一种有序数据结构，它通过在每个节点维持多个指向其他结点的指针，从而达到快速访问节点的目的。平均O(logN)、最坏O(N)复杂度的结点查找，还可以通过顺序性操作来批量处理节点。**跳跃表是有序集合键的底层实现之一** ，跳跃表还在集群节点中用作内部数据结构。跳跃表本质是一种空间换时间的策略，是一种可以进行二分查找的有序链表，**跳跃表在原有的有序链表上增加了多级索引，通过索引来实现快速查询**。跳表不仅能提高搜索性能，同时可以提高插入和删除操作的性能
 
   ![img](https://image.mianshi.online/img202205212044631.png)
 
@@ -146,7 +146,7 @@ Redis的常见的数据类型String、Hash、Set、List、ZSet。还有三种不
 
 ## 过期键的删除策略
 
-### 1.键的过期删除策略
+### 1.❤键的过期删除策略
 
 常见的过期删除策略时**惰性删除、定期删除、定时删除**
 
@@ -166,123 +166,105 @@ Redis是基于内存的，所以容量肯定是有限的，有效的内存淘汰
 
 - allkeys-lru:所有的key通用，优先删除最近最少使用的key
 
-  **如何用go语言实现LRU（使用双向链表）**
+  **如何用go语言实现LRU（使用双向链表）**[146. LRU 缓存 - 力扣（Leetcode）](https://leetcode.cn/problems/lru-cache/description/)
 
   ```go
-  /*
-  @Time : 18-11-5 上午10:41 
-  @Author : xbx
-  @File : lru
-  @Software: GoLand
-  */
-  package main
-   
-  import "fmt"
-   
-  type Node struct {
-  	Key string
-  	Value string
-  	pre *Node
-  	next *Node
-  }
-   
-  func (n *Node)Init(key string, value string){
-  	n.Key = key
-  	n.Value = value
-  }
-   
-  var head *Node
-  var end *Node
-  var limit int
-
+  /
   type LRUCache struct {
-  	limit int
-  	HashMap map[string]*Node
+      limit int 
+      hashMap map[int]*Node
+      head,tail *Node
   }
-   
-  func GetLRUCache(limit int) *LRUCache{
-  	lruCache := LRUCache{limit:limit}
-  	lruCache.HashMap = make(map[string]*Node, limit)
-  	return &lruCache
+
+  type Node struct{
+      key int 
+      value int
+      pre *Node
+      next *Node
   }
-   
-  func (l *LRUCache)get(key string) string{
-  	if v,ok:= l.HashMap[key];ok {
-  		l.refreshNode(v)
-  		return v.Value
-  	}else {
-  		return ""
-  	}
+
+  func NewNode(key , value int)*Node{
+      return &Node{
+          key:key,
+          value:value,
+      }
   }
-   
-  func (l *LRUCache)put(key , value string) {
-  	if v,ok := l.HashMap[key];!ok{
-  		if(len(l.HashMap) >= l.limit){
-  			oldKey := l.removeNode(head)
-  			delete(l.HashMap, oldKey)
-  		}
-  		node := Node{Key:key, Value:value}
-  		l.addNode(&node)
-  		l.HashMap[key] = &node
-  	}else {
-  		v.Value = value
-  		l.refreshNode(v)
-  	}
+
+  func Constructor(capacity int) LRUCache {
+      l:=LRUCache{
+          limit:capacity,
+          head:NewNode(0,0),
+          tail:NewNode(0,0),
+          hashMap:make(map[int]*Node),
+      }
+      l.head.next=l.tail
+      l.tail.pre=l.head
+      return l
   }
-   
-   
-  func (l *LRUCache) refreshNode(node *Node){
-  	if (node == end) {
-  		return
-  	}
-  	l.removeNode(node)
-  	l.addNode(node)
+  func (this *LRUCache) Get(key int) int {
+
+        if node,ok:=this.hashMap[key];ok{
+            this.Refresh(node)
+            return node.value
+        }
+        return -1
+
   }
-   
-  func (l *LRUCache) removeNode(node *Node) string{
-  	if (node == end ) {
-  		end = end.pre
-  	}else if(node == head){
-  		head = head.next
-  	}else {
-  		node.pre.next = node.next
-  		node.next.pre = node.pre
-  	}
-  	return node.Key
+  func (this *LRUCache) Put(key int, value int)  {
+
+    newNode:=NewNode(key,value)
+    if node,ok:=this.hashMap[key];ok{
+      node.value=value
+      this.Refresh(node)
+    }else{
+      this.hashMap[key]=newNode
+      this.AddNode(newNode)
+      if len(this.hashMap)>this.limit{
+        oldKey:=this.tail.pre.key
+        this.RemoveNode(this.tail.pre)
+        delete(this.hashMap,oldKey)
+      }
+    }
+
   }
-   
-   
-  func (l *LRUCache) addNode(node *Node){
-  	if (end != nil){
-  		end.next = node
-  		node.pre = end
-  		node.next = nil
-  	}
-  	end = node
-  	if (head == nil) {
-  		head = node
-  	}
+
+  func (this *LRUCache) Refresh(node *Node)  {
+
+    this.RemoveNode(node)
+    this.AddNode(node)
+
   }
-   
-  func main(){
-  	lruCache := GetLRUCache(5)
-  	lruCache.put("001", "用户１信息")
-  	lruCache.put("002", "用户１信息")
-  	lruCache.put("003", "用户１信息")
-  	lruCache.put("004", "用户１信息")
-  	lruCache.put("005", "用户１信息")
-  	lruCache.get("002")
-  	lruCache.put("004", "用户２信息更新")
-  	lruCache.put("006", "用户6信息更新")
-  	fmt.Println(lruCache.get("001"))
-   
-   
-  	fmt.Println(lruCache.get("006"))
-  	fmt.Print(lruCache.HashMap)
+
+  // 删除
+
+  func (this *LRUCache) RemoveNode(node *Node)  {
+
+    node.pre.next=node.next
+    node.next.pre=node.pre
+
   }
+
+  //每次添加头部
+
+  func (this *LRUCache) AddNode(node *Node)  {
+
+    node.next=this.head.next
+    this.head.next.pre=node
+    node.pre=this.head
+    this.head.next=node
+
+  }
+
+  /**
+
+  - Your LRUCache object will be instantiated and called as such:
+  - obj := Constructor(capacity);
+  - param_1 := obj.Get(key);
+  - obj.Put(key,value);
+    */
+
   ```
 
-  ​
 
 - allkeys-random:所有key通用；随机删除了一部分key
 
@@ -407,7 +389,7 @@ Redis提供了复制功能，在master数据库中的数据更新后，自
 - **缺点：**
   - 不具备自动容错和恢复能力，主节点故障，从节点需要手动升为主节点，可用性较低
 
-#### **Redis哨兵模式**
+  #### **Redis哨兵模式**
 
 为了解决主从模式的Redis集群不具备自动容错和恢复能力的问题，Redis从2.6开始提供哨兵模式
 
@@ -418,7 +400,7 @@ Redis提供了复制功能，在master数据库中的数据更新后，自
 哨兵模式相比于主从模式，主要多了一个哨兵集群，哨兵集群的主要作用如下：
 
 - 监控所有服务器是否正常运行：通过发送命令返回监控服务器的运行状态（心跳），处理监控主服务器、从服务器外，哨兵之间也相互监控
-- 故障切换：当哨兵监测到master宕机，会自动将某个slave切换到master，然后通过**发布订阅模式** 通知其他的从服务器，修改配置文件，让他们切换master。同时那台有问题的旧主也会变成新主的从节点，也就是说当就的主节点即使恢复时，并不会恢复原来的主节点身份，而是作为新主节点的一个从节点
+- 故障切换：当哨兵监测到master宕机，会自动将某个slave切换到master，然后通过**发布订阅模式** 通知其他的从服务器，修改配置文件，让他们切换master。同时那台有问题的旧主也会变成新主的从节点，也就是说当旧的主节点即使恢复时，并不会恢复原来的主节点身份，而是作为新主节点的一个从节点
 
 
 - **优点：**
@@ -451,7 +433,7 @@ Redis提供了复制功能，在master数据库中的数据更新后，自
 
 - **代理分片** ：
 
-  客户端分片的最大问题就是服务端Redis实例群拓扑结构有变化时，每个科幻都需要更新调整
+  客户端分片的最大问题就是服务端Redis实例群拓扑结构有变化时，每个客户端都需要更新调整
 
   为了解决这个问题，代理分片出现了，代理分片将客户端分片模块单独分了出来，作为Redis客户端和服务端的桥梁，如下图：
 
@@ -465,7 +447,7 @@ Redis提供了复制功能，在master数据库中的数据更新后，自
 
 #### Redis Cluster
 
-在Redis3.0中，Redis也提供了响应的解决方案，就是Redis Cluster
+在Redis3.0中，Redis也提供了相应的解决方案，就是Redis Cluster
 
 Redis Cluster是一种服务端Sharding技术，并没有采用一致性哈希，而是采用slot(槽)的概念，一共分成16384个槽。将请求发送到任意节点，接收到请求的结点会将查询请求发送到正确的结点上执行。
 
@@ -562,7 +544,7 @@ min-slaves-max-lag 10
 在Redis2.8以前，从节点向主节点发送sync命令请求同步数据，此时的同步方式是全量复制；在Redis2.8及以后，从节点可以发送psync命令请求同步数据，此时根据主从节点当前状态的不同，同步方式可能是全量复制或部分复制。 
 
 - 全量复制：用于初次复制或其他无法进行部分复制的情况，将主节点中的所有数据都发送给从节点，是一个非常重型的操作。 
-- 部分复制：用于网络中断等情况后的复制，只将中断期间主节点执行的写命令发送给从节点，与全量复制相比更加高效。需要注意的是，如果网络中断时间过长，导致主节点没有能够完整地保存中断期间执行的写命令，则无法进行部分复制，仍使用全量复制。
+- 部分复制：用于处理在主从复制中因网络闪退等原因造成数据丢失场景，当从节点再次连上主节点，如果条件允许，主节点会补发丢失数据给从节点，因为补发的数据远远小于全量数据，可以有效避免全量复制的过高开销。但需要注意，如果网络中断时间过长，造成主节点没有能够完整地保存中断期间执行的写命令，则无法进行部分复制，仍使用全量复制 。
 
 ### 6.Redis是如何保证主从服务器一直处于连接状态以及命令是否丢失
 
@@ -580,7 +562,7 @@ min-slaves-max-lag 10
 
 ### 9.Redis集群是如何选择数据库的？
 
-Redis集群目前无法做到护具库选择，默认在0数据库
+Redis集群目前无法做到数据库选择，默认在0数据库
 
 ### 10.Redis高可用方案如何实现？
 
