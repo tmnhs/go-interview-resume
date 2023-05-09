@@ -75,7 +75,7 @@
   
 - [系统设计](https://github.com/tmnhs/go-interview-resume/blob/main/interview/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF.md)
 
-  在某些特定场景下的一些系统设计的面试题，比如：
+  在某些特定场景下设计的面试题，比如：
   
   - 分布式ID生成器
   
@@ -86,6 +86,7 @@
     ...
   
 - [架构设计](https://github.com/tmnhs/go-interview-resume/blob/main/interview/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1.md)
+  
   与架构设计相关的面试题，比如：
   
   - 为什么要做多级缓存
