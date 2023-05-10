@@ -1,4 +1,12 @@
 # go-interview-resume
+<div align=center>
+<img src="https://img.shields.io/badge/interview-blue"/>
+<img src="https://img.shields.io/badge/resume-lightBlue"/>
+<img src="https://img.shields.io/badge/mysql-brightgreen"/>
+<img src="https://img.shields.io/badge/redis-green"/>
+<img src="https://img.shields.io/badge/computer_network-red"/>
+<img src="https://img.shields.io/badge/os-blue"/>
+</div>
 > 这是本人整理的一些与**Golang后端研发**岗位相关的面试笔记,欢迎大家及时补充
 > 
 >当然并不局限于Golang研发岗位，笔记中还包括**计算机网络、操作系统、MySQL、Redis、系统设计**等八股文，其他语言岗位的也可以阅读
