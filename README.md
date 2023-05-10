@@ -1,7 +1,7 @@
 # go-interview-resume
-> 这是本人整理的一些与**golang后端研发**岗位相关的面试笔记,欢迎大家及时补充
+> 这是本人整理的一些与**Golang后端研发**岗位相关的面试笔记,欢迎大家及时补充
 > 
->当然并不局限于golang研发岗位，笔记中还包括**计算机网络、操作系统、MySQL、Redis、系统设计**等八股文，其他语言岗位的也可以阅读
+>当然并不局限于Golang研发岗位，笔记中还包括**计算机网络、操作系统、MySQL、Redis、系统设计**等八股文，其他语言岗位的也可以阅读
 
 ## 简历
 >一些建议：
@@ -74,7 +74,7 @@
 
   计算机网络相关面试题
   
-  比如**网络协议、Tcp三次握手、四次挥手、http和https**等
+  比如**网络协议、TCP三次握手、四次挥手、http和https**等
 
 - [操作系统](https://github.com/tmnhs/go-interview-resume/blob/main/interview/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.md)
 
