@@ -10,7 +10,7 @@
 
 - 获取变量的值
 
-```
+```go
  import fmt
  
  func main(){

@@ -240,7 +240,7 @@ MVCC（多版本并发控制）是一种控制并发的方法，MVCC的作用就
 - undo日志
   - MVCC使用到的快照会存储到Undo日志中，该日志通过回滚指针将一个一个数据行的所有快照连接起来。
 
-![mysql_mvcc](C:\Users\admin\Desktop\简历\go语言面试\mysql_mvcc.png)
+![mysql_mvcc](../doc/mysql_mvcc.png)
 
 **对比规则**：
 
