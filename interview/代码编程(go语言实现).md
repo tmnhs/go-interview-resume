@@ -236,3 +236,69 @@ func main() {
 }
 ```
 
+### 7.请使用Go语言实现sync.WaitGroup的三个功能：Add、Done、Wait
+
+> 24届滴滴提前批一面
+
+在下面代码中，`cwg.done`是一个`chan struct{}`类型的通道，当调用`close(cwg.done)`时，会向该通道发送一个零值的结构体，表示通道已经关闭。在`<-cwg.done`这一行代码中，它会阻塞等待，直到收到通道关闭的信号。一旦通道被关闭，`<-cwg.done`将会立即返回，程序继续执行后续的操作。
+
+在这个示例中，`cwg.Wait()`方法使用`<-cwg.done`来等待所有任务完成。由于`close(cwg.done)`在所有任务都完成时被调用，所以`<-cwg.done`会在所有任务都完成并且通道被关闭时立即返回。这确保了在所有任务完成后程序才会继续执行后续代码。
+
+需要注意的是，在通道被关闭后，对该通道的任何接收操作（如`<-cwg.done`）都会立即返回零值。如果通道已经被关闭，再次对已关闭的通道进行接收操作不会阻塞，而是立即返回。这是Go语言的通道机制的特性。
+
+```go
+
+
+package main
+
+import (
+	"fmt"
+	"sync/atomic"
+	"time"
+)
+
+type CustomWaitGroup struct {
+	count int32
+	done  chan struct{}
+}
+
+func NewCustomWaitGroup() *CustomWaitGroup {
+	return &CustomWaitGroup{
+		count: 0,
+		done:  make(chan struct{}),
+	}
+}
+
+func (cwg *CustomWaitGroup) Add(delta int) {
+	atomic.AddInt32(&cwg.count, int32(delta))
+}
+
+func (cwg *CustomWaitGroup) Done() {
+	if atomic.AddInt32(&cwg.count, -1) == 0 {
+		close(cwg.done)
+	}
+}
+
+func (cwg *CustomWaitGroup) Wait() {
+	<-cwg.done
+}
+
+func main() {
+	cwg := NewCustomWaitGroup()
+
+	for i := 0; i < 3; i++ {
+		cwg.Add(1)
+		go func(i int) {
+			defer cwg.Done()
+			fmt.Printf("Task %d started\n", i)
+			time.Sleep(time.Second * time.Duration(i))
+			fmt.Printf("Task %d completed\n", i)
+		}(i)
+	}
+
+	cwg.Wait()
+	fmt.Println("All tasks completed")
+}
+
+```
+
