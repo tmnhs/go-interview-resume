@@ -148,6 +148,6 @@
 
 - [B站](https://www.bilibili.com/index.html)
 
-- 个人整理
+- 个人面经
 
 答案不一定准确，欢迎大家提issues或者pull requests进行补充
