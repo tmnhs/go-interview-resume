@@ -144,6 +144,6 @@
 - [IT老齐-哔哩哔哩视频 (bilibili.com)](https://space.bilibili.com/359351574)
 - 个人面经
 
-本项目主要以简单问答的形式介绍面试八股文，如果想深入了解计算机网络、操作系统、数据库等，强烈推荐[小林coding (xiaolincoding.com)](https://xiaolincoding.com/)
+本项目主要以简单问答的形式介绍面试八股文，如果想深入了解计算机网络、操作系统、数据库等，强烈推荐阅读[小林coding (xiaolincoding.com)](https://xiaolincoding.com/)
 
 答案不一定准确，欢迎大家提issues或者pull requests进行补充
