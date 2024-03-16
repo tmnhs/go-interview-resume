@@ -137,17 +137,13 @@
 面试问题和答案大部分来自于网络，包括：
 
 - [路人张的面试笔记](https://www.mianshi.online/)
-
 - [地鼠文档](https://www.topgoer.cn/)
-
 - [algorithm-pattern](https://greyireland.gitbook.io/algorithm-pattern/)
-
 - 一些知乎上的文章
-
 - [牛客上的面经](https://www.nowcoder.com/)
-
-- [B站](https://www.bilibili.com/index.html)
-
+- [IT老齐-哔哩哔哩视频 (bilibili.com)](https://space.bilibili.com/359351574)
 - 个人面经
+
+本项目主要以简单问答的形式介绍面试八股文，如果想深入了解计算机网络、操作系统、数据库等，强烈推荐[小林coding (xiaolincoding.com)](https://xiaolincoding.com/)
 
 答案不一定准确，欢迎大家提issues或者pull requests进行补充
